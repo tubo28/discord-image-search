@@ -73,7 +73,7 @@ func searchHander(s *discordgo.Session, m *discordgo.MessageCreate) {
 			Color:       0xffd700,
 		}
 		if _, err := s.ChannelMessageSendEmbed(m.ChannelID, message); err != nil {
-			log.Printf("error uploading image: %v", err)
+			log.Printf("error sending error message: %v", err)
 		}
 
 		return
@@ -87,7 +87,7 @@ func searchHander(s *discordgo.Session, m *discordgo.MessageCreate) {
 		Color: 0x0095d9,
 	}
 	if _, err := s.ChannelMessageSendEmbed(m.ChannelID, message); err != nil {
-		log.Printf("error uploading image: %v", err)
+		log.Printf("error sending result message: %v", err)
 	}
 }
 
