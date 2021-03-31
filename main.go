@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,14 +16,16 @@ import (
 
 // Bot parameters
 var (
-	BotToken = flag.String("token", "", "Bot access token")
+	BotToken     = os.Getenv("BOT_TOKEN")
+	SearchSecret = os.Getenv("SEARCH_SECRET")
+	CX           = os.Getenv("CX")
 )
 
 var s *discordgo.Session
 
 func init() {
 	var err error
-	s, err = discordgo.New("Bot " + *BotToken)
+	s, err = discordgo.New("Bot " + BotToken)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
@@ -76,8 +77,8 @@ func main() {
 func search(query string) (string, error) {
 	u, _ := url.Parse("https://www.googleapis.com/customsearch/v1")
 	q := url.Values{}
-	q.Set("key", SearchKey)
-	q.Set("cx", cx)
+	q.Set("key", SearchSecret)
+	q.Set("cx", CX)
 	q.Set("num", "1")
 	q.Set("searchType", "image")
 	q.Set("q", query)
