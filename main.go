@@ -63,6 +63,12 @@ func searchHander(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	searchWord := prefix.ReplaceAllString(m.Content, "")
 	searchWord = strings.TrimSpace(searchWord)
+
+	if searchWord == "" {
+		log.Printf("search query is empty")
+		return
+	}
+
 	imageUrl, err := search(searchWord)
 	if err != nil {
 		log.Printf("error searching image: %v", err)
