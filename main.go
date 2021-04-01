@@ -106,7 +106,6 @@ func search(query string) (string, error) {
 	q.Set("searchType", "image")
 	q.Set("q", query)
 	u.RawQuery = q.Encode()
-	println(u.String())
 	resp, err := http.Get(u.String())
 	if err != nil {
 		return "", fmt.Errorf("error calling search api: %w", err)
@@ -115,7 +114,7 @@ func search(query string) (string, error) {
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("received not OK response from search API: %s", resp.Status)
 	}
-	var body SearchResultJson
+	var body searchResultJson
 	json.NewDecoder(resp.Body).Decode(&body)
 	if len(body.Items) == 0 {
 		return "", fmt.Errorf("search result is empty")
@@ -123,7 +122,7 @@ func search(query string) (string, error) {
 	return body.Items[0].Link, nil
 }
 
-type SearchResultJson struct {
+type searchResultJson struct {
 	Items []struct {
 		Kind        string `json:"kind"`
 		Title       string `json:"title"`
