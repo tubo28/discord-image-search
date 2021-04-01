@@ -29,12 +29,11 @@ func init() {
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
+	s.AddHandler(readyHander)
+	s.AddHandler(searchHander)
 }
 
 func main() {
-	s.AddHandler(upHander)
-	s.AddHandler(searchHander)
-
 	err := s.Open()
 	if err != nil {
 		log.Fatalf("error opening the session: %v", err)
@@ -47,7 +46,7 @@ func main() {
 	log.Println("gracefully shutdowning")
 }
 
-func upHander(s *discordgo.Session, r *discordgo.Ready) {
+func readyHander(s *discordgo.Session, r *discordgo.Ready) {
 	log.Println("Bot is up!")
 }
 
@@ -63,37 +62,34 @@ func searchHander(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	searchWord := prefix.ReplaceAllString(m.Content, "")
 	searchWord = strings.TrimSpace(searchWord)
-
 	if searchWord == "" {
 		log.Printf("search query is empty")
 		return
 	}
 
-	imageUrl, err := search(searchWord)
+	respMsg := searchHanderImpl(searchWord)
+	if _, err := s.ChannelMessageSendEmbed(m.ChannelID, respMsg); err != nil {
+		log.Printf("error sending result message: %v", err)
+	}
+}
+
+func searchHanderImpl(word string) *discordgo.MessageEmbed {
+	imageUrl, err := search(word)
 	if err != nil {
 		log.Printf("error searching image: %v", err)
-
-		message := &discordgo.MessageEmbed{
-			Title:       "エラー",
+		return &discordgo.MessageEmbed{
+			Title:       "エラー", // Error
 			Description: err.Error(),
 			Color:       0xffd700,
 		}
-		if _, err := s.ChannelMessageSendEmbed(m.ChannelID, message); err != nil {
-			log.Printf("error sending error message: %v", err)
-		}
-
-		return
 	}
 
-	message := &discordgo.MessageEmbed{
-		Title: searchWord,
+	return &discordgo.MessageEmbed{
+		Title: word,
 		Image: &discordgo.MessageEmbedImage{
 			URL: imageUrl,
 		},
 		Color: 0x0095d9,
-	}
-	if _, err := s.ChannelMessageSendEmbed(m.ChannelID, message); err != nil {
-		log.Printf("error sending result message: %v", err)
 	}
 }
 
